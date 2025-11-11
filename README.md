@@ -1,3 +1,20 @@
+# Law Chatbot - Hệ thống Hỏi đáp Pháp luật Việt Nam
+
+## 1. Tổng quan dự án (Project Overview)
+
+Law Chatbot là một hệ thống hỏi-đáp thông minh (Q&A) được xây dựng chuyên biệt cho lĩnh vực pháp luật Việt Nam. Dự án sử dụng kiến trúc Retrieval-Augmented Generation (RAG) tiên tiến để cung cấp những câu trả lời chính xác, có nguồn gốc rõ ràng từ một cơ sở tri thức (knowledge base) gồm các văn bản luật, nghị định, thông tư...
+
+Mục tiêu của dự án là xây dựng một trợ lý ảo pháp lý đáng tin cậy, giúp người dùng nhanh chóng tra cứu và hiểu rõ các quy định pháp luật phức tạp, giảm thiểu thời gian và công sức so với việc tìm kiếm thủ công.
+
+## 2. Tính năng nổi bật (Key Features)
+
+- **Hỏi-đáp Ngôn ngữ tự nhiên:** Người dùng có thể đặt câu hỏi bằng ngôn ngữ tự nhiên, hệ thống sẽ hiểu và trả về câu trả lời chính xác.
+- **Kiến trúc RAG nâng cao:** Kết hợp sức mạnh của mô hình ngôn ngữ lớn (LLM) và khả năng truy xuất thông tin nhanh chóng từ cơ sở dữ liệu vector (FAISS) để đưa ra câu trả lời dựa trên ngữ cảnh thực tế, giảm thiểu hiện tượng "bịa đặt" (hallucination).
+- **Hỗ trợ đa dạng LLM:** Dễ dàng chuyển đổi giữa các nhà cung cấp LLM hàng đầu như **Google Gemini** và các mô hình mã nguồn mở chạy local qua **Ollama**.
+- **Giao diện trực quan:** Giao diện web được xây dựng bằng **Streamlit**, thân thiện và dễ sử dụng.
+- **Hệ thống đánh giá chất lượng:** Tích hợp sẵn notebook (`evaluate.ipynb`) sử dụng thư viện **RAGAs** để đo lường các chỉ số quan trọng như `faithfulness`, `answer_relevancy`, `context_precision`, đảm bảo chất lượng của hệ thống.
+- **Dễ dàng mở rộng Knowledge Base:** Chỉ cần thêm tài liệu vào thư mục `data` và chạy script để cập nhật cơ sở tri thức.
+
 ### 3. Kiến trúc hệ thống (System Architecture)
 
 Hệ thống được xây dựng dựa trên kiến trúc Retrieval-Augmented Generation (RAG) bao gồm các thành phần chính sau:
