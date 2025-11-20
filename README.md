@@ -1,128 +1,156 @@
-# Law Chatbot - Hệ thống Hỏi đáp Pháp luật Việt Nam
+# Legal RAG Chatbot for Vietnamese Law
 
-## 1. Tổng quan dự án (Project Overview)
+This project implements a sophisticated Retrieval-Augmented Generation (RAG) chatbot specialized in answering questions about Vietnamese law. It leverages state-of-the-art language models and a robust document processing pipeline, including an advanced OCR fallback mechanism, to provide accurate, context-aware answers from a custom knowledge base of legal documents.
 
-Law Chatbot là một hệ thống hỏi-đáp thông minh (Q&A) được xây dựng chuyên biệt cho lĩnh vực pháp luật Việt Nam. Dự án sử dụng kiến trúc Retrieval-Augmented Generation (RAG) tiên tiến để cung cấp những câu trả lời chính xác, có nguồn gốc rõ ràng từ một cơ sở tri thức (knowledge base) gồm các văn bản luật, nghị định, thông tư...
+## Key Features
 
-Mục tiêu của dự án là xây dựng một trợ lý ảo pháp lý đáng tin cậy, giúp người dùng nhanh chóng tra cứu và hiểu rõ các quy định pháp luật phức tạp, giảm thiểu thời gian và công sức so với việc tìm kiếm thủ công.
+- **Hybrid Document Processing**: Ingests various document formats (`.pdf`, `.docx`, `.txt`).
+- **Advanced OCR Fallback**: Utilizes a multi-layered approach for text extraction from PDFs. It first tries fast and accurate methods (PyMuPDF, pdfplumber) and automatically falls back to a Tesseract-based OCR pipeline for scanned or image-based documents.
+- **Configurable OCR**: Fine-tune OCR performance via environment variables for language, DPI, and Tesseract's Page Segmentation Mode (PSM).
+- **Flexible LLM & Embedding Support**: Easily switch between different providers:
+    - **LLMs**: Google Gemini, Ollama.
+    - **Embeddings**: Google (`models/embedding-001`), HuggingFace (`sentence-transformers`).
+- **Efficient Vector Storage**: Uses FAISS for creating and querying a local vector database, ensuring fast retrieval.
+- **Streamlit UI**: A simple and interactive web interface for asking questions and viewing answers with their sources.
+- **RAGAs Evaluation**: Includes a Jupyter notebook (`evaluate.ipynb`) to quantitatively assess the RAG system's performance on metrics like `faithfulness`, `answer_relevancy`, `context_precision`, and `context_recall`.
 
-## 2. Tính năng nổi bật (Key Features)
+## Technology Stack
 
-- **Hỏi-đáp Ngôn ngữ tự nhiên:** Người dùng có thể đặt câu hỏi bằng ngôn ngữ tự nhiên, hệ thống sẽ hiểu và trả về câu trả lời chính xác.
-- **Kiến trúc RAG nâng cao:** Kết hợp sức mạnh của mô hình ngôn ngữ lớn (LLM) và khả năng truy xuất thông tin nhanh chóng từ cơ sở dữ liệu vector (FAISS) để đưa ra câu trả lời dựa trên ngữ cảnh thực tế, giảm thiểu hiện tượng "bịa đặt" (hallucination).
-- **Hỗ trợ đa dạng LLM:** Dễ dàng chuyển đổi giữa các nhà cung cấp LLM hàng đầu như **Google Gemini** và các mô hình mã nguồn mở chạy local qua **Ollama**.
-- **Giao diện trực quan:** Giao diện web được xây dựng bằng **Streamlit**, thân thiện và dễ sử dụng.
-- **Hệ thống đánh giá chất lượng:** Tích hợp sẵn notebook (`evaluate.ipynb`) sử dụng thư viện **RAGAs** để đo lường các chỉ số quan trọng như `faithfulness`, `answer_relevancy`, `context_precision`, đảm bảo chất lượng của hệ thống.
-- **Dễ dàng mở rộng Knowledge Base:** Chỉ cần thêm tài liệu vào thư mục `data` và chạy script để cập nhật cơ sở tri thức.
+- **Core Framework**: LangChain
+- **LLM**: Google Gemini (default), Ollama
+- **Embeddings**: Google Embeddings, Sentence-Transformers
+- **Vector Store**: FAISS (Facebook AI Similarity Search)
+- **UI**: Streamlit
+- **Document Processing**: PyMuPDF, pdfplumber, python-docx
+- **OCR**: Tesseract, pdf2image, Poppler
+- **Evaluation**: RAGAs, Datasets (Hugging Face)
 
-### 3. Kiến trúc hệ thống (System Architecture)
+---
 
-Hệ thống được xây dựng dựa trên kiến trúc Retrieval-Augmented Generation (RAG) bao gồm các thành phần chính sau:
+## Setup and Installation
 
-1.  **Giao diện người dùng (User Interface):**
-    *   Xây dựng bằng **Streamlit** (`app.py`).
-    *   Tiếp nhận câu hỏi từ người dùng và hiển thị câu trả lời do AI tạo ra.
+### 1. Prerequisites
 
-2.  **Thành phần RAG lõi (Core RAG Component):**
-    *   `legal_rag.py`: Class `LegalRAGSystem` điều phối toàn bộ luồng xử lý.
-    *   **LLM Provider**: Hỗ trợ linh hoạt giữa các nhà cung cấp LLM như **Google Gemini** và các mô hình local qua **Ollama**. Cấu hình qua biến môi trường `LLM_PROVIDER`.
-    *   **Embedding Provider**: Hỗ trợ **HuggingFace Embeddings** (mặc định) và **Google Generative AI Embeddings**.
+Before you begin, ensure you have the following installed on your system:
 
-3.  **Truy xuất thông tin (Retriever):**
-    *   **Vector Store**: Sử dụng **FAISS** để lưu trữ và truy vấn các vector tài liệu một cách hiệu quả. Cơ sở dữ liệu vector được lưu tại `vectorstore/`.
-    *   **Retriever**: Thực hiện tìm kiếm tương đồng (similarity search) để lấy ra các đoạn văn bản có liên quan nhất từ Vector Store.
+- **Python 3.10+**
+- **Poppler**: Required by `pdf2image` to convert PDFs to images for OCR.
+    - **Windows**: Download the latest binary from the [Poppler for Windows](https://github.com/oschwartz10612/poppler-windows/releases/) page. Unzip it to a location like `C:\Program Files\poppler-24.02.0` and add the `\bin` subdirectory to your system's PATH.
+    - **macOS**: `brew install poppler`
+    - **Linux**: `sudo apt-get install poppler-utils`
+- **Tesseract OCR Engine**: Required for OCR on scanned documents.
+    - **Windows**: Download and run the installer from [Tesseract at UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki). Make sure to install the Vietnamese language pack (`vie`). Add the Tesseract installation directory (e.g., `C:\Program Files\Tesseract-OCR`) to your system's PATH.
+    - **macOS**: `brew install tesseract`
+    - **Linux**: `sudo apt-get install tesseract-ocr tesseract-ocr-vie`
 
-4.  **Xử lý dữ liệu (Data Processing):**
-    *   `document_processor.py`: Chứa logic để đọc các loại tài liệu khác nhau (`.pdf`, `.docx`, `.txt`) từ thư mục `data/`.
-    *   **Text Splitter**: Sử dụng `RecursiveCharacterTextSplitter` của LangChain để chia nhỏ tài liệu thành các đoạn (chunks) có kích thước phù hợp.
-    *   `rebuild_kb.py`: Script để kích hoạt quá trình xử lý tài liệu và xây dựng lại cơ sở dữ liệu FAISS từ đầu.
+### 2. Clone the Repository
 
-### 4. Cài đặt (Setup and Installation)
+```bash
+git clone https://github.com/tructd123/Legal-Chatbot.git
+cd Legal-Chatbot
+```
 
-Để chạy dự án trên máy cục bộ, hãy làm theo các bước sau:
+### 3. Set Up a Virtual Environment
 
-1.  **Clone a repository:**
-    ```bash
-    git clone <your-repository-url>
-    cd law_chatbot
-    ```
+It is highly recommended to use a virtual environment to manage dependencies.
 
-2.  **Tạo môi trường ảo và cài đặt thư viện:**
-    ```bash
-    # Tạo môi trường ảo
-    python -m venv venv
+```bash
+# Create the virtual environment
+python -m venv .venv
 
-    # Kích hoạt môi trường (trên Windows)
-    .\venv\Scripts\activate
+# Activate it
+# On Windows
+.venv\Scripts\activate
+# On macOS/Linux
+source .venv/bin/activate
+```
 
-    # Kích hoạt môi trường (trên macOS/Linux)
-    source venv/bin/activate
+### 4. Install Dependencies
 
-    # Cài đặt các thư viện cần thiết
-    pip install -r requirements.txt
-    ```
+Install all the required Python packages.
 
-3.  **Cấu hình biến môi trường:**
-    *   Tạo một file tên là `.env` bằng cách sao chép từ file `env.example`.
-    *   Điền các giá trị cần thiết, đặc biệt là `GOOGLE_API_KEY`.
-    ```
-    # .env
-    LLM_PROVIDER=google
-    EMBEDDING_PROVIDER=huggingface
+```bash
+pip install -r requirements.txt
+```
 
-    # Google Gemini
-    GOOGLE_API_KEY="your_google_api_key"
-    GOOGLE_CHAT_MODEL=gemini-1.5-flash
+### 5. Configure Environment Variables
 
-    # Ollama (nếu sử dụng)
-    OLLAMA_MODEL=llama3
-    OLLAMA_BASE_URL=http://localhost:11434
-    ```
+Create a file named `.env` in the root of the project directory by copying the example:
 
-### 5. Hướng dẫn sử dụng (Usage)
+```bash
+# On Windows
+copy .env.example .env
+# On macOS/Linux
+cp .env.example .env
+```
 
-#### 5.1. Nạp dữ liệu và xây dựng Knowledge Base
+Now, edit the `.env` file with your credentials and desired configurations:
 
-Trước khi chạy ứng dụng, bạn cần chuẩn bị cơ sở dữ liệu vector.
+```dotenv
+# --- API Keys & Provider Configuration ---
+GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY"
+LLM_PROVIDER="google" # Or "ollama"
+EMBEDDING_PROVIDER="google" # Or "huggingface"
 
-1.  Đặt các tài liệu pháp lý của bạn (file `.pdf`, `.docx`, `.txt`) vào thư mục `data/`.
-2.  Chạy script sau để xử lý tài liệu và tạo FAISS index:
-    ```bash
-    python rebuild_kb.py
-    ```
-    Quá trình này sẽ tạo ra thư mục `vectorstore/legal_faiss` chứa index.
+# --- Model Configuration ---
+GOOGLE_CHAT_MODEL="gemini-1.5-flash"
+GOOGLE_EMBEDDING_MODEL="models/embedding-001"
+OLLAMA_MODEL="llama3.1" # If using Ollama
+EMBEDDING_MODEL="sentence-transformers/all-MiniLM-L6-v2" # If using HuggingFace
 
-#### 5.2. Chạy ứng dụng Chatbot
+# --- OCR Engine Paths (IMPORTANT for Windows) ---
+# Full path to the Poppler 'bin' directory
+POPPLER_PATH="C:/path/to/poppler-xx.xx.x/Library/bin"
+# Full path to the Tesseract executable
+TESSERACT_CMD="C:/Program Files/Tesseract-OCR/tesseract.exe"
 
-Sử dụng Streamlit để khởi chạy giao diện web:
+# --- OCR Performance Tuning ---
+PDF_OCR_LANG="vie"          # Language for Tesseract (e.g., 'vie' for Vietnamese)
+PDF_OCR_DPI=300             # DPI for rendering PDF pages to images. Higher values are clearer but slower.
+PDF_OCR_CONFIG="--oem 1 --psm 4" # Tesseract config. psm 4 (auto page segmentation) is good for multi-column docs.
+PDF_OCR_VERBOSE="0"         # Set to "1" to see character counts for each OCR'd page.
+```
+
+---
+
+## Usage
+
+### 1. Add Legal Documents
+
+Place your legal documents (`.pdf`, `.docx`, `.txt`) into the `data/` directory.
+
+### 2. Build the Knowledge Base
+
+Run the following script to process the documents in the `data/` folder, generate embeddings, and create the FAISS vector store. This only needs to be done once, or whenever you add/update documents.
+
+```bash
+python rebuild_kb.py
+```
+
+This will create a `vectorstore/legal_faiss` directory containing the indexed knowledge base.
+
+### 3. Run the Chatbot
+
+Launch the Streamlit web application:
+
 ```bash
 streamlit run app.py
 ```
-Mở trình duyệt và truy cập vào địa chỉ `http://localhost:8501`.
 
-### 6. Đánh giá chất lượng (Evaluation)
+Open your web browser to the local URL provided by Streamlit (usually `http://localhost:8501`) to start interacting with the chatbot.
 
-Dự án đi kèm một notebook (`evaluate.ipynb`) để đánh giá chất lượng của hệ thống RAG bằng bộ dữ liệu `ViBidLQA` và thư viện `RAGAs`.
+### 4. Evaluate the System (Optional)
 
-1.  Mở và chạy các cell trong notebook `evaluate.ipynb`.
-2.  Notebook sẽ tự động:
-    *   Tải bộ dữ liệu.
-    *   Tạo câu trả lời từ hệ thống RAG cho các câu hỏi trong bộ dữ liệu.
-    *   Tính toán các chỉ số: `faithfulness`, `answer_relevancy`, `context_precision`, `context_recall`.
-    *   Hiển thị bảng điểm kết quả.
+The `evaluate.ipynb` notebook allows you to assess the performance of the RAG pipeline using the RAGAs framework.
 
-Đây là một bước quan trọng để đo lường và chứng minh hiệu quả của mô hình.
+1.  **Download Data**: The notebook is configured to use the `ViBidLQA` dataset. You may need to run the initial cells to download it from Hugging Face.
+2.  **Generate Answers**: The notebook will take a sample of questions, generate answers using your RAG system, and retrieve the contexts used.
+3.  **Evaluate**: It then computes scores for `faithfulness`, `answer_relevancy`, `context_precision`, and `context_recall`.
 
-### 7. Lộ trình phát triển (Future Roadmap)
+To run it, start a Jupyter server in your activated virtual environment:
 
--   [ ] **Tối ưu hóa RAG**:
-    -   [ ] Tích hợp kỹ thuật Reranking (sử dụng Cross-encoders) để cải thiện độ chính xác của context.
-    -   [ ] Thử nghiệm các phương pháp Query Transformation (như Multi-Query) để xử lý các câu hỏi phức tạp.
--   [ ] **MLOps**:
-    -   [ ] Đóng gói ứng dụng với `Dockerfile`.
-    -   [ ] Thiết lập CI/CD pipeline với GitHub Actions để tự động chạy test.
-    -   [ ] Triển khai ứng dụng lên một nền tảng đám mây (ví dụ: Azure App Service, Google Cloud Run).
--   [ ] **Cải thiện UX**:
-    -   [ ] Hiển thị nguồn (document citation) cho mỗi câu trả lời.
-    -   [ ] Thêm cơ chế thu thập phản hồi của người dùng (feedback).
-    -   [ ] Hỗ trợ lịch sử hội thoại.
+```bash
+jupyter notebook
+```
+
+Then, open `evaluate.ipynb` and run the cells sequentially.
