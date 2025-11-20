@@ -1,2 +1,5 @@
 .env
 .venv
+temp_pkg/
+vectorstore/
+test.py
