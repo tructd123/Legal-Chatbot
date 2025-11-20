@@ -1,8 +1,9 @@
 streamlit
-langchain
-langchain-core
-langchain-community
-langchain-google-genai
+langchain==0.1.17
+langchain-community==0.0.36
+langchain-core==0.1.52
+langchain-text-splitters==0.0.1
+langchain-google-genai==1.0.1
 faiss-cpu
 python-dotenv
 PyPDF2
@@ -13,3 +14,10 @@ pdfplumber
 pytesseract
 pdf2image
 Pillow
+ragas==0.1.9
+protobuf==3.20.3
+pydantic==1.10.13
+pandas
+tqdm
+datasets
+PyMuPDF

@@ -55,7 +55,7 @@ def rebuild_knowledge_base():
         if result["answer"] and "không tìm thấy" not in result["answer"].lower():
             print("✅ Knowledge base đã được xây dựng thành công!")
             print(f"📊 Tìm thấy {len(result['sources'])} nguồn tham khảo")
-            print(f"📝 Câu trả lời mẫu: {result['answer'][:200]}...")
+            print(f"📝 Câu trả lời mẫu: {result['answer'][:500]}...")
             return True
         else:
             print("⚠️ Có vấn đề với knowledge base")
